@@ -1,18 +1,19 @@
 <?php
 include_once 'includes/db_connect.php';
 include_once 'includes/functions.php';
- 
-sec_session_start();
+         sec_session_start();
+         filelog(session_id());
 ?>
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
         <title>Secure Login: Protected Page</title>
-        <link rel="stylesheet" href="styles/main.css" />
     </head>
     <body>
-        <?php if (login_check($mysqli) == true) : ?>
+        <?php
+
+        if (login_check($mysqli) == true) : ?>
             <p>Welcome <?php echo htmlentities($_SESSION['username']); ?>!</p>
             <p>
                 This is an example protected page.  To access this page, users

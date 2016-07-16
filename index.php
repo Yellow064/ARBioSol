@@ -15,7 +15,7 @@ if (login_check($mysqli) == true) {
     <head>
         <title>Login Seguro: Log In</title>
         <script type="text/JavaScript" src="js/forms.js"></script> 
-        <script type="text/JavaScript" src="js/md5.min.js"></script> 
+        <script type="text/JavaScript" src="js/sha512.js"></script> 
     </head>
     <body>
         <?php

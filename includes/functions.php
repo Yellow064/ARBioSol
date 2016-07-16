@@ -1,6 +1,6 @@
 <?php
 include_once 'psl-config.php';
- 
+
 function sec_session_start() {
     $session_name = 'sec_session_id';   // Set a custom session name
     $secure = true;
@@ -25,12 +25,13 @@ function sec_session_start() {
 }
 
 function login($Usuario, $Contraseña, $mysqli) {
+        
+
     // Using prepared statements means that SQL injection is not possible. 
     if ($stmt = $mysqli->prepare("SELECT RFC, Usuario, Contrasena 
         FROM empleado
        WHERE Usuario = ?
         LIMIT 1")) {
-        console.log("no tengo ni puta idea");
         $stmt->bind_param('s', $Usuario);  // Bind "$email" to parameter.
         $stmt->execute();    // Execute the prepared query.
         $stmt->store_result();
@@ -38,7 +39,7 @@ function login($Usuario, $Contraseña, $mysqli) {
         // get variables from result.
         $stmt->bind_result($RFC, $username, $db_password);
         $stmt->fetch();
- 
+
         if ($stmt->num_rows == 1) {
             // If the user exists we check if the account is locked
             // from too many login attempts 
@@ -50,8 +51,8 @@ function login($Usuario, $Contraseña, $mysqli) {
             } else {
                 // Check if the password in the database matches
                 // the password the user submitted. We are using
-                // the password_verify function to avoid timing attacks.
-                if (password_verify($Contraseña, $db_password)) {
+                // the password_verify function to avoid timing attacks.                         
+                if ($Contraseña==$db_password) {
                     // Password is correct!
                     // Get the user-agent string of the user.
                     $user_browser = $_SERVER['HTTP_USER_AGENT'];
@@ -63,7 +64,7 @@ function login($Usuario, $Contraseña, $mysqli) {
                                                                 "", 
                                                                 $username);
                     $_SESSION['username'] = $username;
-                    $_SESSION['login_string'] = hash('MD5', 
+                    $_SESSION['login_string'] = hash('sha512', 
                               $db_password . $user_browser);
                     // Login successful.
                     return true;
@@ -71,7 +72,7 @@ function login($Usuario, $Contraseña, $mysqli) {
                     // Password is not correct
                     // We record this attempt in the database
                     $now = time();
-                    $mysqli->query("INSERT INTO registo_login(user_id, time)
+                    $mysqli->query("INSERT INTO registo_login(user_id, Tiempo)
                                     VALUES ('$RFC', '$now')");
                     return false;
                 }
@@ -114,7 +115,8 @@ function login_check($mysqli) {
     if (isset($_SESSION['user_id'], 
                         $_SESSION['username'], 
                         $_SESSION['login_string'])) {
- 
+        filelog("yay");
+
         $RFC = $_SESSION['user_id'];
         $login_string = $_SESSION['login_string'];
         $username = $_SESSION['username'];
@@ -122,19 +124,19 @@ function login_check($mysqli) {
         // Get the user-agent string of the user.
         $user_browser = $_SERVER['HTTP_USER_AGENT'];
  
-        if ($stmt = $mysqli->prepare("SELECT Contraseña 
+        if ($stmt = $mysqli->prepare("SELECT Contrasena 
                                       FROM empleados 
                                       WHERE RFC = ? LIMIT 1")) {
             // Bind "$RFC" to parameter. 
             $stmt->bind_param('i', $RFC);
             $stmt->execute();   // Execute the prepared query.
             $stmt->store_result();
- 
+            
             if ($stmt->num_rows == 1) {
                 // If the user exists get variables from result.
                 $stmt->bind_result($Contraseña);
                 $stmt->fetch();
-                $login_check = hash('MD5', $Contraseña . $user_browser);
+                $login_check = hash('sha512', $Contraseña . $user_browser);
  
                 if (hash_equals($login_check, $login_string) ){
                     // Logged In!!!! 
@@ -186,4 +188,11 @@ function esc_url($url) {
     } else {
         return $url;
     }
+}
+
+function filelog($data){
+    $myfile = fopen("mylog.txt", "w");
+    fwrite($myfile,$data);
+    fclose($myfile);
+    return;
 }

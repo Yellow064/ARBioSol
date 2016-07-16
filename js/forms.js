@@ -6,9 +6,7 @@ function formhash(form, password) {
     form.appendChild(p);
     p.name = "p";
     p.type = "hidden";
-    p.value = md5(password.value);
-    console.log("no tengo ni");
-
+    p.value = hex_sha512(password.value);
     // Make sure the plaintext password doesn't get sent. 
     password.value = "";
     // Finally submit the form. 
@@ -67,7 +65,7 @@ function regformhash(form, uid, username, password, conf) {
     form.appendChild(p);
     p.name = "p";
     p.type = "hidden";
-    p.value = md5(password.value);
+    p.value = hex_sha512(password.value);
  
     // Make sure the plaintext password doesn't get sent. 
     password.value = "";
